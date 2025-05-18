@@ -12,7 +12,7 @@ const Home = () => {
     return (
       <div>
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-          {initialCoffees.map((initialCoffee) => (
+          {coffees.map((initialCoffee) => (
             <CoffeeCard
               key={initialCoffee._id}
               coffees={coffees}

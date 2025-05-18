@@ -1,28 +1,32 @@
 import React, { use } from "react";
 import { AuthContext } from "../Contexts/AuthContext";
 import Swal from "sweetalert2";
- 
 
 const SignUp = () => {
- 
   const { createUser } = use(AuthContext);
   console.log(createUser);
 
-  const handleSignUp = e =>{
+  const handleSignUp = (e) => {
     e.preventDefault();
     const form = e.target;
-     const formData = new FormData(form);
+    const formData = new FormData(form);
 
-     const  {email,password, ...userProfile} = Object.fromEntries(formData.entries())
- 
-      
-     console.log(email, password, userProfile);
+    const { email, password, ...restFormData } = Object.fromEntries(formData.entries());
+   
 
-     //create user in the firebase
-     createUser(email,password)
-     .then(result=>{
-        console.log(result.user)
+    //create user in the firebase
+    createUser(email, password)
+      .then((result) => {
+        console.log(result.user);
 
+        const userProfile = {
+          email,
+          ...restFormData,
+          creationTime: result.user?.metadata?.creationTime,
+          lastSignInTime: result.user?.metadata?.lastSignInTime,
+        };
+
+        console.log(email, password, userProfile);
         //save profile information in the db
         fetch("http://localhost:3000/users", {
           method: "POST",
@@ -33,24 +37,23 @@ const SignUp = () => {
         })
           .then((res) => res.json())
           .then((data) => {
-            if(data.insertedId){
-                Swal.fire({
-                  position: "top-end",
-                  icon: "success",
-                  title: "your account is created",
-                  showConfirmButton: false,
-                  timer: 1500,
-                });
+            if (data.insertedId) {
+              Swal.fire({
+                position: "top-end",
+                icon: "success",
+                title: "your account is created",
+                showConfirmButton: false,
+                timer: 1500,
+              });
             }
             // console.log("after profile save", data);
           });
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
-     })
-     .catch(error=>{
-        console.log(error)
-     })
-  }
-   
   return (
     <div className="card bg-base-100   max-w-sm mx-auto shrink-0 shadow-2xl">
       <div className="card-body">
